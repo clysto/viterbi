@@ -18,3 +18,4 @@ dependencies = []
 
 [tool.setuptools]
 py-modules = ["viterbi"]
+include-package-data = true
