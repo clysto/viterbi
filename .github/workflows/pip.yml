@@ -20,6 +20,9 @@ jobs:
 
       - name: Build wheels
         uses: pypa/cibuildwheel@v2.13.1
+        env:
+          CIBW_ARCHS: [x86_64]
+          CIBW_BUILD: [python3.11]
 
       - uses: actions/upload-artifact@v3
         with:
