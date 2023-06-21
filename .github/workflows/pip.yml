@@ -8,7 +8,7 @@ permissions:
   contents: read
 
 jobs:
-  build_wheels:
+build_wheels:
     name: Build wheels on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     strategy:
@@ -21,7 +21,9 @@ jobs:
       - name: Build wheels
         uses: pypa/cibuildwheel@v2.13.1
         env:
-          CIBW_ARCHS: x86_64
+          CIBW_ARCHS_LINUX: x86_64
+          CIBW_ARCHS_WINDOWS: x86
+          CIBW_ARCHS_MACOS: x86_64
           CIBW_BUILD: cp311*
 
       - uses: actions/upload-artifact@v3
