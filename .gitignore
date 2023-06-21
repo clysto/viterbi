@@ -1,0 +1,6 @@
+*.o
+.DS_Store
+.vscode
+*.so
+viterbi_main
+viterbi_test
