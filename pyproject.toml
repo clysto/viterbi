@@ -18,6 +18,3 @@ dependencies = []
 
 [tool.setuptools]
 py-modules = ["viterbi"]
-
-[tool.setuptools.package-data]
-"*" = ["viterbi.h"]
