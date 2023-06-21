@@ -8,7 +8,7 @@ permissions:
   contents: read
 
 jobs:
-build_wheels:
+  build_wheels:
     name: Build wheels on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     strategy:
