@@ -30,13 +30,13 @@ jobs:
       - name: Build package
         run: |
           python -m build
-          auditwheel repair dist/*.whl
       - name: Store the binary wheel
         uses: actions/upload-artifact@v2
         with:
           name: python-package-distributions
           path: dist
   publish:
+    needs: build
     runs-on: ubuntu-latest
 
     steps:
