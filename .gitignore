@@ -4,3 +4,7 @@
 *.so
 viterbi_main
 viterbi_test
+__pycache__
+dist
+*.egg-info
+venv

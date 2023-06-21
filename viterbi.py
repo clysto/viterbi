@@ -1,6 +1,6 @@
 from viterbicodec import ViterbiCodec, reverse_bits
 
-all = ["Viterbi"]
+__all__ = ["Viterbi"]
 
 
 def list2str(bits):
@@ -29,12 +29,3 @@ class Viterbi(ViterbiCodec):
         bits += "0" * (2 * (self.constraint - 1))
         output = ViterbiCodec.decode(self, bits)
         return str2list(output)
-
-
-if __name__ == "__main__":
-    bits = [1] * 100
-    codec = Viterbi(7, [0o133, 0o171])
-    a = codec.encode(bits)
-    print(a)
-    b = codec.decode(a)
-    print(b)
