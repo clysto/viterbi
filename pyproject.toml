@@ -15,7 +15,6 @@ requires-python = ">=3.7"
 keywords = ["viterbi"]
 license = {file = "LICENSE"}
 dependencies = []
-repository = "https://github.com/clysto/viterbi"
 
 [tool.setuptools]
 py-modules = ["viterbi"]

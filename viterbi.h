@@ -34,6 +34,8 @@ class ViterbiCodec {
   // We use 2.
   ViterbiCodec(int constraint, const std::vector<int>& polynomials);
 
+  ViterbiCodec(int constraint, const std::vector<int>& polynomials, const std::string& puncpat);
+
   std::string Encode(const std::string& bits) const;
 
   std::string Decode(const std::string& bits) const;
@@ -60,24 +62,23 @@ class ViterbiCodec {
 
   std::string Output(int current_state, int input) const;
 
-  int BranchMetric(const std::string& bits,
-                   int source_state,
-                   int target_state) const;
+  int BranchMetric(const std::string& bits, int source_state, int target_state) const;
 
   // Given num_parity_bits() received bits, compute and returns path
   // metric and its corresponding previous state.
-  std::pair<int, int> PathMetric(const std::string& bits,
-                                 const std::vector<int>& prev_path_metrics,
-                                 int state) const;
+  std::pair<int, int> PathMetric(const std::string& bits, const std::vector<int>& prev_path_metrics, int state) const;
 
   // Given num_parity_bits() received bits, update path metrics of all states
   // in the current iteration, and append new traceback vector to trellis.
-  void UpdatePathMetrics(const std::string& bits,
-                         std::vector<int>* path_metrics,
-                         Trellis* trellis) const;
+  void UpdatePathMetrics(const std::string& bits, std::vector<int>* path_metrics, Trellis* trellis) const;
+
+  std::string Puncturing(const std::string bits) const;
+
+  std::string Depuncturing(const std::string bits) const;
 
   const int constraint_;
   const std::vector<int> polynomials_;
+  const std::string puncpat_;
 
   // The output table.
   // The index is current input bit combined with previous inputs in the shift
@@ -88,7 +89,7 @@ class ViterbiCodec {
   std::vector<std::string> outputs_;
 };
 
-std::ostream& operator <<(std::ostream& os, const ViterbiCodec& codec);
+std::ostream& operator<<(std::ostream& os, const ViterbiCodec& codec);
 
 int ReverseBits(int num_bits, int input);
 

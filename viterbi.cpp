@@ -19,6 +19,9 @@ int HammingDistance(const std::string& x, const std::string& y) {
   assert(x.size() == y.size());
   int distance = 0;
   for (int i = 0; i < x.size(); i++) {
+    if (x.at(i) == '-' || y.at(i) == '-') {
+      continue;
+    }
     distance += x[i] != y[i];
   }
   return distance;
@@ -26,7 +29,7 @@ int HammingDistance(const std::string& x, const std::string& y) {
 
 }  // namespace
 
-std::ostream& operator <<(std::ostream& os, const ViterbiCodec& codec) {
+std::ostream& operator<<(std::ostream& os, const ViterbiCodec& codec) {
   os << "ViterbiCodec(" << codec.constraint() << ", {";
   const std::vector<int>& polynomials = codec.polynomials();
   assert(!polynomials.empty());
@@ -47,8 +50,8 @@ int ReverseBits(int num_bits, int input) {
   return output;
 }
 
-ViterbiCodec::ViterbiCodec(int constraint, const std::vector<int>& polynomials)
-    : constraint_(constraint), polynomials_(polynomials) {
+ViterbiCodec::ViterbiCodec(int constraint, const std::vector<int>& polynomials, const std::string& puncpat)
+    : constraint_(constraint), polynomials_(polynomials), puncpat_(puncpat) {
   assert(!polynomials_.empty());
   for (int i = 0; i < polynomials_.size(); i++) {
     assert(polynomials_[i] > 0);
@@ -57,9 +60,10 @@ ViterbiCodec::ViterbiCodec(int constraint, const std::vector<int>& polynomials)
   InitializeOutputs();
 }
 
-int ViterbiCodec::num_parity_bits() const {
-  return polynomials_.size();
-}
+ViterbiCodec::ViterbiCodec(int constraint, const std::vector<int>& polynomials)
+    : ViterbiCodec(constraint, polynomials, "") {}
+
+int ViterbiCodec::num_parity_bits() const { return polynomials_.size(); }
 
 int ViterbiCodec::NextState(int current_state, int input) const {
   return (current_state >> 1) | (input << (constraint_ - 2));
@@ -83,9 +87,13 @@ std::string ViterbiCodec::Encode(const std::string& bits) const {
   }
 
   // Encode (constaint_ - 1) flushing bits.
-  for (int i = 0; i < constraint_ - 1; i++) {
-    encoded += Output(state, 0);
-    state = NextState(state, 0);
+  // for (int i = 0; i < constraint_ - 1; i++) {
+  //   encoded += Output(state, 0);
+  //   state = NextState(state, 0);
+  // }
+
+  if (puncpat_.size() > 0) {
+    return Puncturing(encoded);
   }
 
   return encoded;
@@ -109,21 +117,16 @@ void ViterbiCodec::InitializeOutputs() {
   }
 }
 
-int ViterbiCodec::BranchMetric(const std::string& bits,
-                               int source_state,
-                               int target_state) const {
+int ViterbiCodec::BranchMetric(const std::string& bits, int source_state, int target_state) const {
   assert(bits.size() == num_parity_bits());
   assert((target_state & ((1 << (constraint_ - 2)) - 1)) == source_state >> 1);
-  const std::string output =
-      Output(source_state, target_state >> (constraint_ - 2));
+  const std::string output = Output(source_state, target_state >> (constraint_ - 2));
 
   return HammingDistance(bits, output);
 }
 
-std::pair<int, int> ViterbiCodec::PathMetric(
-    const std::string& bits,
-    const std::vector<int>& prev_path_metrics,
-    int state) const {
+std::pair<int, int> ViterbiCodec::PathMetric(const std::string& bits, const std::vector<int>& prev_path_metrics,
+                                             int state) const {
   int s = (state & ((1 << (constraint_ - 2)) - 1)) << 1;
   int source_state1 = s | 0;
   int source_state2 = s | 1;
@@ -144,9 +147,7 @@ std::pair<int, int> ViterbiCodec::PathMetric(
   }
 }
 
-void ViterbiCodec::UpdatePathMetrics(const std::string& bits,
-                                     std::vector<int>* path_metrics,
-                                     Trellis* trellis) const {
+void ViterbiCodec::UpdatePathMetrics(const std::string& bits, std::vector<int>* path_metrics, Trellis* trellis) const {
   std::vector<int> new_path_metrics(path_metrics->size());
   std::vector<int> new_trellis_column(1 << (constraint_ - 1));
   for (int i = 0; i < path_metrics->size(); i++) {
@@ -160,26 +161,29 @@ void ViterbiCodec::UpdatePathMetrics(const std::string& bits,
 }
 
 std::string ViterbiCodec::Decode(const std::string& bits) const {
+  std::string depunctured;
+  if (puncpat_.size() > 0) {
+    depunctured = Depuncturing(bits) + std::string(num_parity_bits() * (constraint_ - 1), '0');
+  } else {
+    depunctured = bits + std::string(num_parity_bits() * (constraint_ - 1), '0');
+  }
   // Compute path metrics and generate trellis.
   Trellis trellis;
-  std::vector<int> path_metrics(1 << (constraint_ - 1),
-                                std::numeric_limits<int>::max());
+  std::vector<int> path_metrics(1 << (constraint_ - 1), std::numeric_limits<int>::max());
   path_metrics.front() = 0;
-  for (int i = 0; i < bits.size(); i += num_parity_bits()) {
-    std::string current_bits(bits, i, num_parity_bits());
+  for (int i = 0; i < depunctured.size(); i += num_parity_bits()) {
+    std::string current_bits(depunctured, i, num_parity_bits());
     // If some bits are missing, fill with trailing zeros.
     // This is not ideal but it is the best we can do.
     if (current_bits.size() < num_parity_bits()) {
-      current_bits.append(
-          std::string(num_parity_bits() - current_bits.size(), '0'));
+      current_bits.append(std::string(num_parity_bits() - current_bits.size(), '0'));
     }
     UpdatePathMetrics(current_bits, &path_metrics, &trellis);
   }
 
   // Traceback.
   std::string decoded;
-  int state = std::min_element(path_metrics.begin(), path_metrics.end()) -
-              path_metrics.begin();
+  int state = std::min_element(path_metrics.begin(), path_metrics.end()) - path_metrics.begin();
   for (int i = trellis.size() - 1; i >= 0; i--) {
     decoded += state >> (constraint_ - 2) ? "1" : "0";
     state = trellis[i][state];
@@ -190,3 +194,33 @@ std::string ViterbiCodec::Decode(const std::string& bits) const {
   return decoded.substr(0, decoded.size() - constraint_ + 1);
 }
 
+std::string ViterbiCodec::Puncturing(const std::string bits) const {
+  std::string punctured;
+  int index = 0;
+  for (int i = 0; i < bits.size(); i++) {
+    if (puncpat_.at(index) == '1') punctured += bits[i];
+    index = (index + 1) % puncpat_.size();
+  }
+  return punctured;
+}
+
+std::string ViterbiCodec::Depuncturing(const std::string bits) const {
+  std::string depunctured;
+  int index = 0;
+  int i = 0;
+  while (index < bits.size()) {
+    for (int j = 0; j < puncpat_.size(); j++) {
+      if (puncpat_.at(j) == '1') {
+        if (index >= bits.size()) {
+          depunctured += "0";
+        } else {
+          depunctured += bits[index++];
+        }
+      } else {
+        depunctured += "-";
+      }
+    }
+    i += puncpat_.size();
+  }
+  return depunctured;
+}

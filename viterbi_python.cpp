@@ -5,7 +5,7 @@
 
 PYBIND11_MODULE(viterbicodec, m) {
   pybind11::class_<ViterbiCodec>(m, "ViterbiCodec")
-      .def(pybind11::init<int, const std::vector<int>&>())
+      .def(pybind11::init<int, const std::vector<int>&, const std::string&>())
       .def("encode", &ViterbiCodec::Encode)
       .def("decode", &ViterbiCodec::Decode);
 
