@@ -1,5 +1,10 @@
 # Convolutional Encoder and Viterbi Decoder
 
+![License](https://img.shields.io/github/license/clysto/viterbi)
+![Version](https://img.shields.io/github/tag/clysto/viterbi)
+![PyPI - Python Version](https://img.shields.io/pypi/pyversions/viterbi)
+![PyPI - Downloads](https://img.shields.io/pypi/dm/viterbi)
+
 > This project is a fork of <https://github.com/xukmin/viterbi> that introduces Python support, enabling effortless utilization of the Viterbi module within the Python environment.
 
 ## Install

@@ -15,10 +15,20 @@ requires-python = ">=3.7"
 keywords = ["viterbi"]
 license = {file = "LICENSE"}
 dependencies = []
+classifiers = [
+    'Programming Language :: C++',
+    'Programming Language :: Python',
+    'Programming Language :: Python :: 3',
+    "Programming Language :: Python :: 3 :: Only",
+    'Programming Language :: Python :: 3.7',
+    'Programming Language :: Python :: 3.8',
+    'Programming Language :: Python :: 3.9',
+    'Programming Language :: Python :: 3.10',
+    'Programming Language :: Python :: 3.11',
+]
 
 [project.urls]
-Homepage = "https://github.com/clysto/viterbi"
-Repository = "https://github.com/clysto/viterbi.git"
+Source = "https://github.com/clysto/viterbi"
 
 [tool.setuptools]
 py-modules = ["viterbi"]
