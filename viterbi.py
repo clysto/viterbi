@@ -32,34 +32,11 @@ class Viterbi(ViterbiCodec):
         self.is_punctured = len(puncpat) > 0
 
     def encode(self, bits):
-        if (
-            self.is_punctured
-            and len(bits) * len(self.polynomials) % len(self.puncpat) != 0
-        ):
-            raise Exception(
-                "The length of bits divided by the base code rate must be an integer multiple of the length of the puncture pattern."
-            )
         bits = list2str(bits)
         output = ViterbiCodec.encode(self, bits)
         return str2list(output)
 
     def decode(self, bits):
-        if self.is_punctured and len(bits) % self.puncpat_ones_len != 0:
-            raise Exception(
-                "The length of bits must be an integer multiple of the number of ones in the puncture pattern."
-            )
-        if (
-            len(bits)
-            / self.puncpat_ones_len
-            * len(self.puncpat)
-            % len(self.polynomials)
-            != 0
-        ):
-            raise Exception(
-                "The length of bits divided by the number of ones in the puncture pattern "
-                + "times the length of the puncture pattern must be an integer multiple of the number "
-                + "of bits in an input symbol."
-            )
         bits = list2str(bits)
         output = ViterbiCodec.decode(self, bits)
         return str2list(output)

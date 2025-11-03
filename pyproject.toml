@@ -3,7 +3,7 @@ requires = ["setuptools", "pybind11"]
 build-backend = "setuptools.build_meta"
 
 [project]
-version = "0.0.5"
+version = "0.0.6"
 name = "viterbi"
 authors = [
     {name = "Yachen Mao", email = "maoyachen55@gmail.com"},
@@ -26,6 +26,8 @@ classifiers = [
     'Programming Language :: Python :: 3.10',
     'Programming Language :: Python :: 3.11',
     'Programming Language :: Python :: 3.12',
+    'Programming Language :: Python :: 3.13',
+    'Programming Language :: Python :: 3.14',
 ]
 
 [project.urls]
